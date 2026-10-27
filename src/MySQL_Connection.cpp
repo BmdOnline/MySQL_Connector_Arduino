@@ -109,6 +109,11 @@ void MySQL_Connection::close()
 {
   if (connected())
   {
+    // COM_QUIT: payload length 1 (3 bytes, little-endian), sequence id 0,
+    // command 0x01. The server closes the connection (or replies OK, which
+    // flush() discards).
+    const uint8_t com_quit[5] = {0x01, 0x00, 0x00, 0x00, 0x01};
+    client->write(com_quit, sizeof(com_quit));
     client->flush();
     client->stop();
     show_error(DISCONNECTED, true);
